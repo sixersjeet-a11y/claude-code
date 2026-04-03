@@ -1,0 +1,213 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRoleType {
+  STUDENT
+  PARENT
+  ADMIN
+}
+
+enum ApplicationStatus {
+  TODO
+  IN_PROGRESS
+  COMPLETE
+  OVERDUE
+}
+
+model User {
+  id            String     @id @default(cuid())
+  email         String     @unique
+  passwordHash  String
+  fullName      String
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  profile       Profile?
+  roles         UserRole[]
+  savedSchools  SavedSchool[]
+  matcherResults MatcherResult[]
+  interviews    InterviewSession[]
+  essays        Essay[]
+  ssatPractice  SSATPractice[]
+  checklistTasks ChecklistTask[]
+  documents     Document[]
+}
+
+model UserRole {
+  id         String       @id @default(cuid())
+  userId     String
+  role       UserRoleType
+  linkedToId String?
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+
+  user       User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, role])
+}
+
+model School {
+  id                   String   @id @default(cuid())
+  ncesId               String?  @unique
+  name                 String
+  slug                 String   @unique
+  city                 String
+  state                String
+  schoolType           String
+  religiousAffiliation String?
+  size                 Int?
+  tuition              Int?
+  acceptanceRate       Float?
+  competitiveness      String
+  boardingAvailable    Boolean  @default(false)
+  websiteUrl           String?
+  academics            Json?
+  admissions           Json?
+  quickFacts           Json?
+  latitude             Float?
+  longitude            Float?
+  aiInsights           Json?
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  savedSchools         SavedSchool[]
+  matcherResults       MatcherResult[]
+  checklistTasks       ChecklistTask[]
+
+  @@index([state, boardingAvailable])
+  @@index([competitiveness])
+  @@index([religiousAffiliation])
+  @@index([name])
+}
+
+model Profile {
+  id                 String   @id @default(cuid())
+  userId             String   @unique
+  gradeLevel         Int?
+  targetEntryYear    Int?
+  preferredStates    String[]
+  budgetUpperLimit   Int?
+  studentBio         String?
+  extracurriculars   String[]
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model SavedSchool {
+  id        String   @id @default(cuid())
+  userId    String
+  schoolId  String
+  notes     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  school    School   @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, schoolId])
+  @@index([userId])
+}
+
+model MatcherResult {
+  id           String   @id @default(cuid())
+  userId       String
+  schoolId     String
+  bucket       String
+  matchScore   Int
+  explanation  String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  school       School   @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+
+  @@index([userId, bucket])
+}
+
+model InterviewSession {
+  id                String   @id @default(cuid())
+  userId            String
+  schoolId          String?
+  transcript        String?
+  confidenceScore   Int?
+  clarityScore      Int?
+  structureScore    Int?
+  contentScore      Int?
+  aiFeedback        String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+}
+
+model Essay {
+  id          String   @id @default(cuid())
+  userId      String
+  schoolId    String?
+  prompt      String?
+  draft       String
+  aiFeedback  String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, updatedAt])
+}
+
+model SSATPractice {
+  id          String   @id @default(cuid())
+  userId      String
+  section     String
+  score       Int
+  total       Int
+  detail      Json?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, section, createdAt])
+}
+
+model ChecklistTask {
+  id          String            @id @default(cuid())
+  userId      String
+  schoolId    String
+  title       String
+  dueDate     DateTime?
+  status      ApplicationStatus @default(TODO)
+  notes       String?
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  user        User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  school      School            @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+
+  @@index([userId, dueDate, status])
+}
+
+model Document {
+  id           String   @id @default(cuid())
+  userId       String
+  schoolId     String?
+  fileName     String
+  mimeType     String
+  storagePath  String
+  sizeBytes    Int
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+}
