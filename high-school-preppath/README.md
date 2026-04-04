@@ -90,6 +90,13 @@ All models include:
 - `POST /api/ai/ssat`
 - `POST /api/ai/application-assistant`
 
+- `POST /api/ai/student-productivity` multimodal assignment autoparser + scheduler assistant:
+  - Auto-detect textbook titles, page numbers, problem numbers, and assignment type from text/images.
+  - Estimate completion time by assignment pattern (essay/problem set/worksheet/reading/test prep).
+  - Extract natural-language deadlines (e.g. "due tomorrow", "test on Friday", "submit by 11:59 PM") and flag urgency/overload.
+  - Generate notes, glossary, test-style questions, flashcards, rewrite/explain outputs, study guides, smart notifications, and one-tap calendar time blocks.
+  - Includes grade calculator projections, study streak + productivity scoring, realistic learning mode, and parent dashboard summaries.
+
 ### Admin
 - `POST /api/admin/enrich-schools`
 
