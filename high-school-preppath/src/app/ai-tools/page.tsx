@@ -6,7 +6,8 @@ const tools = [
   ['AI Interview Coach', '/api/ai/interview-coach'],
   ['Improve Your Chances', '/api/ai/improve-chances'],
   ['SSAT Practice Tool', '/api/ai/ssat'],
-  ['Application Assistant', '/api/ai/application-assistant']
+  ['Application Assistant', '/api/ai/application-assistant'],
+  ['Student Productivity Copilot', '/api/ai/student-productivity']
 ];
 
 export default function AIToolsPage() {
